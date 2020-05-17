@@ -167,3 +167,60 @@ testing.normality <- function(x,y) {
   no.outlier <- lm.model$residuals [is.outlier== FALSE]
   print (df$row.n[is.outlier==TRUE])
 }
+
+#for regression with 3 IV(x1 numeric, x2 numeric, x3 categorical, y)
+testing.multicollinearity_x1.num.x2.num.x3.char <- function(x1,x2,x3,y){
+  lm.model <- (lm (y~x1+x2+x3))
+  par(mfrow=c(2,2))
+  text.main <- paste('Correlation between', deparse(substitute(x1)), 'and', deparse(substitute(x2)))
+  plot(x2~x1,
+       main= text.main,
+       xlab= deparse(substitute(x1)),
+       ylab = deparse(substitute(x2)))
+  abline (lm(x2~x1), col='red')
+  text.gral <- 'TESTING FOR MULTICOLINEARITY'
+  mtext(text.gral, side = 3, at=1.2, line = 3)
+
+  x1.c <- as.character(x1)
+  x1.x3 <- data.frame (x3, x1.c)
+  table.x1.x3 <- table(x1.x3)
+  correl.iv <- cor.test(x1, x2)
+  text.mult1 <- paste('Warning! The correlation statistic between ', deparse(substitute(x1)), 'and ', deparse(substitute(x3)), 'is considerable')
+  text.multi3 <- paste('Correlation between ', deparse(substitute(x1)), 'and ', deparse(substitute(x3)), 'is', round (correl.iv$statistic, 2), 'with a p value=', round (correl.iv$p.value,2))
+  mtext(text.multi3, side = 1, line = 5)
+  text.mult2 <- paste('Warning! The correlation test between ', deparse(substitute(x1)), 'and ', deparse(substitute(x3)),' is significant')
+  if (correl.iv$statistic >.9 | correl.iv$statistic < (-.9)) {mtext (text.mult1, col = 'red', side = 1, col='red', line = 6)}
+  if (correl.iv$p.value <0.05) {mtext (text.mult2, col = 'red', side = 1, line = 7)}
+  
+  text.m.x1.x3 <- paste('Plot of variables ', deparse(substitute(x1)), 'and ', deparse(substitute(x3)))
+  plot(table.x1.x3, type= 'h',
+       main= text.m.x1.x3,
+       ylab = deparse(substitute(x1)),
+       xlab = deparse(substitute(x3)))
+  x2.x3 <- data.frame(x3, x2)
+  table.x2.x3 <- table(x2.x3)
+  
+  chisquare.x1.x3 <- chisq.test(x1,x3)
+  text.multi4 <- paste('Independence between ', deparse(substitute(x1)), 'and ', deparse(substitute(x3)),' \nshows Chi squared test, p=', round(chisquare.x1.x3$p.value, 4))
+  mtext(text.multi4, side = 1, line = 8)
+  text.multi5 <- paste ('Warning! There are signs of no independence between', deparse(substitute(x1)), 'and ', deparse(substitute(x2)))
+  if (chisquare.x1.x3$p.value <0.05) {col.chi1 <- 'red'}
+  if (chisquare.x1.x3$p.value >=0.05) {col.chi1 <- 'black'}
+  if (chisquare.x1.x3$p.value <0.05) {mtext(text.multi5, col= col.chi1, side = 1, line = 14)}
+  
+  chisquare.x2.x3 <- chisq.test(x2,x3)
+  text.multi6 <- paste('Independence between ', deparse(substitute(x2)), 'and ', deparse(substitute(x3)),' \nshows Chi squared test, p=', round(chisquare.x2.x3$p.value, 4))
+  mtext(text.multi6, side = 1, line = 11)
+  text.multi7 <- paste ('Warning! There are signs of no independence between', deparse(substitute(x2)), 'and ', deparse(substitute(x3)))
+  if (chisquare.x2.x3$p.value <0.05) {col.chi2 <- 'red'}
+  if (chisquare.x2.x3$p.value >=0.05) {col.chi2 <- 'black'}
+  if (chisquare.x2.x3$p.value <0.05) {mtext(text.multi7, col= col.chi2, side = 1, line = 16)}
+  mtext('Look at the print area: check the Variance Inflation Factors (VIF) for every regression term \n see if they are too high (VIFs above 10 are problematic), \nand could be removed, combined, or the regression can use partial least squares, \nor use PCA to analyze relationships.', side = 1, line = 24)
+  
+  text.m.x2.x3 <- paste('Plot of variables ', deparse(substitute(x2)), 'and ', deparse(substitute(x3)))
+  plot(table.x2.x3, type = 'h',
+       main = text.m.x2.x3,
+       ylab = deparse(substitute(x2)),
+       xlab = deparse(substitute(x3)))
+  print(vif(lm.model))
+}
