@@ -168,9 +168,8 @@ testing.normality <- function(x,y) {
   print (df$row.n[is.outlier==TRUE])
 }
 
-#for regression with 3 IV(x1 numeric, x2 numeric, x3 categorical, y)
-testing.multicollinearity_x1.num.x2.num.x3.char <- function(x1,x2,x3,y){
-  lm.model <- (lm (y~x1+x2+x3))
+#for regression with 3 IV(x1 numeric, x2 numeric, x3 categorical)
+testing.multicollinearity_x1.num.x2.num.x3.char <- function(x1,x2,x3){
   par(mfrow=c(2,2))
   text.main <- paste('Correlation between', deparse(substitute(x1)), 'and', deparse(substitute(x2)))
   plot(x2~x1,
@@ -219,7 +218,7 @@ testing.multicollinearity_x1.num.x2.num.x3.char <- function(x1,x2,x3,y){
   
   text.m.x2.x3 <- paste('Plot of variables ', deparse(substitute(x2)), 'and ', deparse(substitute(x3)))
   plot(table.x2.x3, type = 'h',
-       main = text.m.x2.x3,
+       main = '',
        ylab = deparse(substitute(x2)),
        xlab = deparse(substitute(x3)))
   print(vif(lm.model))
